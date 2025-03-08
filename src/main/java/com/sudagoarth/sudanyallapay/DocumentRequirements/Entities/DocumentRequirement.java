@@ -10,7 +10,9 @@ import com.sudagoarth.sudanyallapay.Enums.EntityType;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "document_requirements")
+@Table(name = "document_requirements", indexes = {
+    @Index(name = "index_document_requirements_entity_type", columnList = "entity_type")
+})
 public class DocumentRequirement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

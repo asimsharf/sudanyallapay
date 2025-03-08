@@ -10,7 +10,9 @@ import com.sudagoarth.sudanyallapay.Users.Entities.User;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "auth_security")
+@Table(name = "auth_security", indexes = {
+    @Index(name = "index_auth_security_user_id", columnList = "user_id")
+})
 public class AuthSecurity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

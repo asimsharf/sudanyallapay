@@ -10,7 +10,9 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "bank_accounts")
+@Table(name = "bank_accounts", indexes = {
+    @Index(name = "index_bank_accounts_user_id", columnList = "user_id")
+})
 public class BankAccount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

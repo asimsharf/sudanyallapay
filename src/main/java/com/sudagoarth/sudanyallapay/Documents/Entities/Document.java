@@ -12,7 +12,10 @@ import com.sudagoarth.sudanyallapay.Enums.EntityType;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "documents")
+@Table(name = "documents", indexes = {
+    @Index(name = "index_documents_reference_id", columnList = "reference_id"),
+    @Index(name = "index_documents_entity_type", columnList = "entity_type")
+})
 public class Document {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

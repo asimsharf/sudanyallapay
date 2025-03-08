@@ -13,7 +13,9 @@ import com.sudagoarth.sudanyallapay.Users.Entities.User;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "bills")
+@Table(name = "bills", indexes = {
+    @Index(name = "index_bills_user_id", columnList = "user_id")
+})
 public class Bill {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

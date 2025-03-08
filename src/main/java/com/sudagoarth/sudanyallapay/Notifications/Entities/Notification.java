@@ -10,7 +10,9 @@ import com.sudagoarth.sudanyallapay.Users.Entities.User;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "notifications")
+@Table(name = "notifications", indexes = {
+    @Index(name = "index_notifications_user_id", columnList = "user_id")
+})
 public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -14,7 +14,10 @@ import com.sudagoarth.sudanyallapay.Wallets.Entities.Wallet;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "transactions")
+@Table(name = "transactions", indexes = {
+    @Index(name = "index_transactions_sender_wallet_id", columnList = "sender_wallet_id"),
+    @Index(name = "index_transactions_receiver_wallet_id", columnList = "receiver_wallet_id")
+})
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

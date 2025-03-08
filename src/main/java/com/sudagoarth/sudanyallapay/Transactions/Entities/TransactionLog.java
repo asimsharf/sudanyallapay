@@ -9,7 +9,9 @@ import com.sudagoarth.sudanyallapay.Enums.TransactionStatus;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "transaction_logs")
+@Table(name = "transaction_logs", indexes = {
+    @Index(name = "index_transaction_logs_transaction_id", columnList = "transaction_id")
+})
 public class TransactionLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
