@@ -12,11 +12,9 @@ import com.sudagoarth.sudanyallapay.Users.Repositories.UserRepository;
 import com.sudagoarth.sudanyallapay.AuthSsecurity.Entities.AuthSecurity;
 import com.sudagoarth.sudanyallapay.AuthSsecurity.Interfaces.AuthSecurityInterface;
 import com.sudagoarth.sudanyallapay.AuthSsecurity.Repositories.AuthSecurityRepository;
-import com.sudagoarth.sudanyallapay.AuthSsecurity.Services.AuthSecurityService;
 import com.sudagoarth.sudanyallapay.exceptions.DuplicateException;
 import com.sudagoarth.sudanyallapay.exceptions.NotFoundException;
 
-import java.lang.foreign.Linker.Option;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
