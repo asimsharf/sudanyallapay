@@ -22,8 +22,8 @@ public class AuthSecurity {
     @JoinColumn(name = "user_id")
     private User user;
     
-    private String otpCode;
-    private LocalDateTime otpExpiresAt;
+    private String code;
+    private LocalDateTime expiresAt;
     private Boolean isUsed;
     private LocalDateTime createdAt;
 }

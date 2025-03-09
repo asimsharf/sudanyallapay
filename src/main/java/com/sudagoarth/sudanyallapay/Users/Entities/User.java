@@ -21,7 +21,7 @@ public class User {
     private String fullName;
     private String email;
     private String phoneNumber;
-    private String passwordHash;
+    private String password;
     private String nationalId;
     private LocalDate dateOfBirth;
     private LocalDateTime createdAt;
