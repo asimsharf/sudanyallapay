@@ -24,7 +24,6 @@ public class User {
     private String passwordHash;
     private String nationalId;
     private LocalDate dateOfBirth;
-    private String profileImageUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
