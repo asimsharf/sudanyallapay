@@ -102,6 +102,19 @@ public class GlobalExceptionHandler {
                                                 List.of(Map.of("message", ex.getMessage()))));
         }
 
+        @ExceptionHandler(ExpiredException.class)
+        public ResponseEntity<ApiResponse> handleExpiredException(ExpiredException ex) {
+                LOGGER.warn("ExpiredException: {}", ex.getMessage());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                .body(ApiResponse.error(new LocaledData(
+                                                "Expired",
+                                                "انتهت الصلاحية"),
+                                                HttpStatus.BAD_REQUEST.value(),
+                                                "EXPIRED",
+                                                List.of(Map.of("message", ex.getMessage()))));
+        }
+
+
         @ExceptionHandler(EntityNotFoundException.class)
         public ResponseEntity<ApiResponse> handleEntityNotFoundException(EntityNotFoundException ex) {
                 LOGGER.warn("EntityNotFoundException: {}", ex.getMessage());

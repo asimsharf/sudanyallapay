@@ -1,11 +1,9 @@
-package com.sudagoarth.sudanyallapay.AuthSsecurity.Repositories;
-
+package com.sudagoarth.sudanyallapay.Users.Repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.sudagoarth.sudanyallapay.AuthSsecurity.Entities.AuthSecurity;
-import com.sudagoarth.sudanyallapay.Users.Entities.User;
+import com.sudagoarth.sudanyallapay.Users.Entities.AuthSecurity;
 
 import java.util.Optional;
 
@@ -13,5 +11,5 @@ import java.util.Optional;
 public interface AuthSecurityRepository extends JpaRepository<AuthSecurity, Long> {
     Optional<AuthSecurity> findByCodeAndIsUsedFalse(String otpCode);
 
-    Optional<AuthSecurity> findByCodeAndIsUsedFalse(User user);
+    Optional<AuthSecurity> findByUserIdAndIsUsedFalse(Long id);
 }
