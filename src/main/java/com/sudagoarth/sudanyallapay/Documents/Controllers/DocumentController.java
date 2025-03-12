@@ -112,11 +112,14 @@ public class DocumentController {
                         @RequestBody DocumentRequirementRequest documentRequirementRequest) {
                 LOGGER.info("Updating document: {}", documentRequirementRequest);
 
+                DocumentResponse documentResponse = documentInterface
+                                .updateDocument(documentId, documentRequirementRequest);
+
                 return ResponseEntity.status(HttpStatus.CREATED)
                                 .body(ApiResponse.success(new LocaledData(
                                                 "Document updated successfully", "تم تحديث المستند بنجاح"),
                                                 HttpStatus.CREATED.value(),
-                                                null));
+                                                documentResponse));
         }
 
         @DeleteMapping("/{documentId}")

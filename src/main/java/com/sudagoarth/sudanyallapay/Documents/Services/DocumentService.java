@@ -126,39 +126,56 @@ public class DocumentService implements DocumentInterface {
     }
 
     @Override
-    public DocumentResponse updateDocument(Long id, DocumentRequirementRequest documentRequirementRepository)
+    public DocumentResponse updateDocument(Long id, DocumentRequirementRequest documentRequirementRequest)
             throws NotFoundException {
 
         Document document = documentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Document not found"));
 
         // Validate the request
-        if (documentRequirementRepository.getBase64Document() == null
-                || documentRequirementRepository.getBase64Document().isEmpty()) {
+        if (documentRequirementRequest.getBase64Document() == null
+                || documentRequirementRequest.getBase64Document().isEmpty()) {
             throw new IllegalArgumentException("Document content is required");
         }
 
         // Extract file extension (png, jpg, pdf, etc.)
-        String base64Data = documentRequirementRepository.getBase64Document();
+        String base64Data = documentRequirementRequest.getBase64Document();
         String extension = getFileExtension(base64Data);
 
         // Decode Base64 Document
         String base64WithoutPrefix = base64Data.contains(",") ? base64Data.split(",")[1] : base64Data;
         byte[] decodedBytes = Base64.getDecoder().decode(base64WithoutPrefix);
 
-        // Generate a random unique filename
+        // **Delete the existing file from the uploads folder**
+        if (document.getDocumentUrl() != null) {
+            deleteExistingFile(document.getDocumentUrl());
+        }
+
+        // Generate a new random unique filename
         String uniqueFileName = UUID.randomUUID().toString() + "." + extension;
 
-        // Save the decoded file locally (Modify for S3/cloud storage if needed)
-        String localFilePath = saveFile(decodedBytes, uniqueFileName);
+        // Define upload path
+        String uploadDir = "uploads/"; // Make sure this folder exists
+        File uploadPath = new File(uploadDir);
+        if (!uploadPath.exists()) {
+            uploadPath.mkdirs(); // Create the directory if it doesn't exist
+        }
+
+        // Save the new file to uploads folder
+        File newFile = new File(uploadDir + uniqueFileName);
+        try (FileOutputStream fos = new FileOutputStream(newFile)) {
+            fos.write(decodedBytes);
+        } catch (IOException e) {
+            throw new RuntimeException("Error saving file", e);
+        }
 
         // Construct full URL for document access
         String documentUrl = "http://localhost:4000/api/v1/documents/view/" + uniqueFileName;
 
         // Update document metadata in the database
-        document.setReferenceId(documentRequirementRepository.getReferenceId());
-        document.setEntityType(documentRequirementRepository.getEntityType());
-        document.setDocumentName(documentRequirementRepository.getDocumentName());
+        document.setReferenceId(documentRequirementRequest.getReferenceId());
+        document.setEntityType(documentRequirementRequest.getEntityType());
+        document.setDocumentName(documentRequirementRequest.getDocumentName());
         document.setDocumentUrl(documentUrl); // Store full access URL
         document.setStatus(DocumentStatus.PENDING);
         document.setUploadedAt(LocalDateTime.now());
@@ -166,6 +183,24 @@ public class DocumentService implements DocumentInterface {
         documentRepository.save(document);
 
         return DocumentResponse.fromDocument(document);
+    }
+
+    private void deleteExistingFile(String documentUrl) {
+        try {
+            // Extract file name from URL
+            String fileName = documentUrl.substring(documentUrl.lastIndexOf("/") + 1);
+            File file = new File("uploads/" + fileName);
+
+            if (file.exists()) {
+                if (file.delete()) {
+                    System.out.println("✅ Old file deleted: " + fileName);
+                } else {
+                    System.err.println("⚠️ Failed to delete old file: " + fileName);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("⚠️ Error while deleting file: " + e.getMessage());
+        }
     }
 
     @Override
@@ -187,7 +222,8 @@ public class DocumentService implements DocumentInterface {
     }
 
     @Override
-    public DocumentResponse statusDocument(Long id, DocumentStatusRequest documentStatusRequest) throws NotFoundException {
+    public DocumentResponse statusDocument(Long id, DocumentStatusRequest documentStatusRequest)
+            throws NotFoundException {
 
         Document document = documentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Document not found"));
