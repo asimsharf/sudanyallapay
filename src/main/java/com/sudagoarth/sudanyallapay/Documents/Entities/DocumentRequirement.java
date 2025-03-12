@@ -1,4 +1,4 @@
-package com.sudagoarth.sudanyallapay.DocumentRequirements.Entities;
+package com.sudagoarth.sudanyallapay.Documents.Entities;
 
 import jakarta.persistence.*;
 import lombok.*;

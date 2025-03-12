@@ -15,8 +15,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByPhoneNumber(String phoneNumber);
 
     User findByPhoneNumber(String phoneNumber);
-@Query("SELECT u FROM User u WHERE LOWER(u.email) = LOWER(:email)")
-User findByEmail(@Param("email") String email);
 
+    @Query("SELECT u FROM User u WHERE LOWER(u.email) = LOWER(:email)")
+    User findByEmail(@Param("email") String email);
 
 }

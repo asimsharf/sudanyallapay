@@ -36,6 +36,7 @@ public class UserResponse {
                 : null;
     }
 
+    // ✅ Convert a list of Users
     public static List<UserResponse> fromUsers(List<User> users) {
         return users.stream().map(UserResponse::new).collect(Collectors.toList());
     }
