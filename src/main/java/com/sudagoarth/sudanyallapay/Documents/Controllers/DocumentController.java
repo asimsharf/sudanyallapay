@@ -123,8 +123,11 @@ public class DocumentController {
         }
 
         @DeleteMapping("/{documentId}")
-        public ResponseEntity<ApiResponse> deleteDocument(@RequestParam Long documentId) {
+        public ResponseEntity<ApiResponse> deleteDocument(@PathVariable Long documentId) {
                 LOGGER.info("Deleting document by ID: {}", documentId);
+
+              documentInterface.deleteDocument(documentId);
+
 
                 return ResponseEntity.status(HttpStatus.CREATED)
                                 .body(ApiResponse.success(new LocaledData(
@@ -134,16 +137,19 @@ public class DocumentController {
         }
 
         @PutMapping("/{documentId}/status")
-        public ResponseEntity<ApiResponse> statusDocument(@RequestParam Long documentId,
-                        @RequestBody DocumentStatusRequest documentStatusRequest) {
-                LOGGER.info("Updating document status: {}", documentStatusRequest);
-
-                return ResponseEntity.status(HttpStatus.CREATED)
-                                .body(ApiResponse.success(new LocaledData(
-                                                "Document status updated successfully", "تم تحديث حالة المستند بنجاح"),
-                                                HttpStatus.CREATED.value(),
-                                                null));
+        public ResponseEntity<ApiResponse> statusDocument(@PathVariable Long documentId, // Fix: Use @PathVariable
+                                                          @RequestBody DocumentStatusRequest documentStatusRequest) {
+            LOGGER.info("Updating document status for ID: {}", documentId);
+            
+            DocumentResponse documentResponse = documentInterface.statusDocument(documentId, documentStatusRequest);
+        
+            return ResponseEntity.status(HttpStatus.OK) // Fix: Use 200 OK instead of 201 Created
+                    .body(ApiResponse.success(new LocaledData(
+                            "Document status updated successfully", "تم تحديث حالة المستند بنجاح"),
+                            HttpStatus.OK.value(),
+                            documentResponse));
         }
+        
 
         @GetMapping("/view/{fileName}")
         public ResponseEntity<Resource> viewDocument(@PathVariable String fileName) {
