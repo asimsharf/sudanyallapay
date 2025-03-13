@@ -16,6 +16,37 @@ CREATE TABLE users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+-- Create Security & Authentication Table
+CREATE TABLE auth_security (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    otp_code VARCHAR(10) NOT NULL,
+    otp_expires_at TIMESTAMP NOT NULL,
+    is_used BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Create Document Requirements Table
+CREATE TABLE document_requirements (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    entity_type ENUM('user', 'transaction', 'wallet', 'merchant', 'bank_account', 'card', 'bill') NOT NULL,
+    document_name VARCHAR(255) NOT NULL,
+    is_required BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create Documents Table
+CREATE TABLE documents (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    reference_id BIGINT NOT NULL,
+    entity_type ENUM('user', 'transaction', 'wallet', 'merchant', 'bank_account', 'card', 'bill') NOT NULL,
+    document_name VARCHAR(255) NOT NULL,
+    document_url VARCHAR(255) NOT NULL,
+    status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create Wallets Table
 CREATE TABLE wallets (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -41,6 +72,15 @@ CREATE TABLE transactions (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (sender_wallet_id) REFERENCES wallets(id) ON DELETE SET NULL,
     FOREIGN KEY (receiver_wallet_id) REFERENCES wallets(id) ON DELETE SET NULL
+);
+
+-- Create Transaction Logs Table
+CREATE TABLE transaction_logs (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    transaction_id BIGINT NOT NULL,
+    status ENUM('pending', 'completed', 'failed') NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE CASCADE
 );
 
 -- Create Bank Accounts Table
@@ -83,32 +123,12 @@ CREATE TABLE bills (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Create Transaction Logs Table
-CREATE TABLE transaction_logs (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    transaction_id BIGINT NOT NULL,
-    status ENUM('pending', 'completed', 'failed') NOT NULL,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE CASCADE
-);
-
 -- Create Notifications Table
 CREATE TABLE notifications (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
     message TEXT NOT NULL,
     is_read BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
--- Create Security & Authentication Table
-CREATE TABLE auth_security (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id BIGINT NOT NULL,
-    otp_code VARCHAR(10) NOT NULL,
-    otp_expires_at TIMESTAMP NOT NULL,
-    is_used BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -127,22 +147,3 @@ CREATE TABLE merchants (
     FOREIGN KEY (wallet_id) REFERENCES wallets(id) ON DELETE CASCADE
 );
 
--- Create Document Requirements Table
-CREATE TABLE document_requirements (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    entity_type ENUM('user', 'transaction', 'wallet', 'merchant', 'bank_account', 'card', 'bill') NOT NULL,
-    document_name VARCHAR(255) NOT NULL,
-    is_required BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Create Documents Table
-CREATE TABLE documents (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    reference_id BIGINT NOT NULL,
-    entity_type ENUM('user', 'transaction', 'wallet', 'merchant', 'bank_account', 'card', 'bill') NOT NULL,
-    document_name VARCHAR(255) NOT NULL,
-    document_url VARCHAR(255) NOT NULL,
-    status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
-    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
