@@ -19,7 +19,7 @@ public class TransactionService implements TransactionInterface {
 
     @Autowired
     private TransactionRepository transactionRepository;
-    
+
     @Autowired
     private TransactionLogRepository transactionLogRepository;
 
@@ -31,9 +31,9 @@ public class TransactionService implements TransactionInterface {
 
     @Override
     public TransactionResponse getTransaction(Long id) throws NotFoundException {
-        Transaction transaction = transactionRepository.findById(id).orElseThrow(() -> new NotFoundException("Transaction not found"));
+        Transaction transaction = transactionRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Transaction not found"));
         return TransactionResponse.fromTransaction(transaction);
     }
-
 
 }

@@ -27,16 +27,16 @@ public class TransactionController {
 
     @Autowired
     private TransactionInterface transactionInterface;
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class.getName());
 
     @GetMapping
     public ResponseEntity<ApiResponse> getTransactions(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        
+
         LOGGER.info("Getting transactions - Page: {} | Size: {}", page, size);
-        
+
         Pageable pageable = PageRequest.of(page, size);
         Page<TransactionResponse> transactionResponses = transactionInterface.getTransactions(pageable);
 

@@ -114,7 +114,6 @@ public class GlobalExceptionHandler {
                                                 List.of(Map.of("message", ex.getMessage()))));
         }
 
-
         @ExceptionHandler(EntityNotFoundException.class)
         public ResponseEntity<ApiResponse> handleEntityNotFoundException(EntityNotFoundException ex) {
                 LOGGER.warn("EntityNotFoundException: {}", ex.getMessage());
@@ -190,7 +189,8 @@ public class GlobalExceptionHandler {
         }
 
         @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
-        public ResponseEntity<ApiResponse> handleNoResourceFoundException(org.springframework.web.servlet.resource.NoResourceFoundException ex) {
+        public ResponseEntity<ApiResponse> handleNoResourceFoundException(
+                        org.springframework.web.servlet.resource.NoResourceFoundException ex) {
                 LOGGER.warn("NoResourceFoundException: {}", ex.getMessage());
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                 .body(ApiResponse.error(new LocaledData(
