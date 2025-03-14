@@ -75,19 +75,5 @@ public class WalletController {
 
     }
 
-    @PutMapping("/wallet")
-    public ResponseEntity<ApiResponse> updateWallet(@RequestParam Long walletId, @RequestBody WalletRequest wallet) {
-
-        LOGGER.info("Updating wallet by ID: {}", walletId);
-
-        WalletResponse walletResponse = walletInterface.updateWallet(walletId, wallet);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.success(new LocaledData(
-                        "Wallet updated successfully", "تم تحديث المحفظة بنجاح"),
-                        HttpStatus.OK.value(),
-                        walletResponse));
-
-    }
 
 }

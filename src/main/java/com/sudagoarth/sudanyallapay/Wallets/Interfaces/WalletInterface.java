@@ -14,7 +14,6 @@ public interface WalletInterface {
 
     WalletResponse createWallet(WalletRequest walletRequest);
 
-    WalletResponse updateWallet(Long walletId, WalletRequest walletRequest);
 
     void deleteWallet(Long walletId);
 
@@ -25,11 +24,5 @@ public interface WalletInterface {
     WalletResponse withdrawWallet(Long walletId, BigDecimal amount);
 
     WalletResponse transferWallet(Long walletId, Long targetId, BigDecimal amount);
-
-    WalletResponse getBalance(Long walletId);
-
-    WalletResponse getTransactions(Long walletId);
-
-    WalletResponse getTransaction(Long walletId, Long transactionId);
 
 }
