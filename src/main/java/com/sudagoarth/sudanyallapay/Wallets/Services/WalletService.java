@@ -23,6 +23,7 @@ import com.sudagoarth.sudanyallapay.Wallets.Entities.Wallet;
 import com.sudagoarth.sudanyallapay.Wallets.Interfaces.WalletInterface;
 import com.sudagoarth.sudanyallapay.Wallets.Repositories.WalletRepository;
 import com.sudagoarth.sudanyallapay.exceptions.DuplicateException;
+import com.sudagoarth.sudanyallapay.exceptions.InsufficientBalanceException;
 import com.sudagoarth.sudanyallapay.exceptions.NotFoundException;
 
 @Service
@@ -76,8 +77,8 @@ public class WalletService implements WalletInterface {
     }
 
     @Override
-    public WalletResponse depositWallet(Long id, BigDecimal amount) throws NotFoundException {
-        Wallet wallet = walletRepository.findById(id)
+    public WalletResponse depositWallet(Long walletId, BigDecimal amount) throws NotFoundException {
+        Wallet wallet = walletRepository.findById(walletId)
                 .orElseThrow(() -> new NotFoundException("Wallet not found"));
 
         wallet.setBalance(wallet.getBalance().add(amount));
@@ -85,8 +86,8 @@ public class WalletService implements WalletInterface {
 
         // Log the transaction
         Transaction transaction = new Transaction();
-        transaction.setSenderWallet(wallet);
-        transaction.setReceiverWallet(wallet);
+        transaction.setSenderWallet(null); // No sender in deposits
+        transaction.setReceiverWallet(wallet); // The wallet receiving the deposit
         transaction.setTransactionType(TransactionType.DEPOSIT);
         transaction.setAmount(amount);
         transaction.setReferenceNumber(generateReferenceNumber());
@@ -101,9 +102,8 @@ public class WalletService implements WalletInterface {
         log.setTransaction(transaction);
         log.setStatus(TransactionStatus.COMPLETED);
         log.setUpdatedAt(LocalDateTime.now());
-        log.setTransaction(transaction);
         transactionLogRepository.save(log);
-        
+
         return WalletResponse.fromWallet(wallet);
     }
 
@@ -114,7 +114,7 @@ public class WalletService implements WalletInterface {
                 .orElseThrow(() -> new NotFoundException("Wallet not found"));
 
         if (wallet.getBalance().compareTo(amount) < 0) {
-            throw new RuntimeException("Insufficient balance");
+            throw new InsufficientBalanceException("Insufficient balance to complete this transaction.");
         }
 
         wallet.setBalance(wallet.getBalance().subtract(amount));
@@ -122,8 +122,8 @@ public class WalletService implements WalletInterface {
 
         // Log the transaction
         Transaction transaction = new Transaction();
-        transaction.setSenderWallet(wallet);
-        transaction.setReceiverWallet(wallet);
+        transaction.setSenderWallet(wallet); // The wallet making the withdrawal
+        transaction.setReceiverWallet(null); // No receiver in withdrawals
         transaction.setTransactionType(TransactionType.WITHDRAWAL);
         transaction.setAmount(amount);
         transaction.setReferenceNumber(generateReferenceNumber());
@@ -137,7 +137,6 @@ public class WalletService implements WalletInterface {
         log.setTransaction(transaction);
         log.setStatus(TransactionStatus.COMPLETED);
         log.setUpdatedAt(LocalDateTime.now());
-        log.setTransaction(transaction);
         transactionLogRepository.save(log);
 
         return WalletResponse.fromWallet(wallet);
@@ -146,60 +145,100 @@ public class WalletService implements WalletInterface {
     @Override
     @Transactional
     public WalletResponse transferWallet(Long senderId, Long receiverId, BigDecimal amount) throws NotFoundException {
-
+        
+        if (senderId.equals(receiverId)) {
+            throw new IllegalArgumentException("Sender and Receiver cannot be the same.");
+        }
+    
         Wallet senderWallet = walletRepository.findById(senderId)
                 .orElseThrow(() -> new NotFoundException("Sender Wallet not found"));
-
+    
         Wallet receiverWallet = walletRepository.findById(receiverId)
                 .orElseThrow(() -> new NotFoundException("Receiver Wallet not found"));
-
+    
         if (senderWallet.getBalance().compareTo(amount) < 0) {
-            throw new RuntimeException("Insufficient balance");
+            throw new InsufficientBalanceException("Insufficient balance to complete the transfer.");
         }
-
-        senderWallet.setBalance(senderWallet.getBalance().subtract(amount));
-        receiverWallet.setBalance(receiverWallet.getBalance().add(amount));
-
-        walletRepository.save(senderWallet);
-        walletRepository.save(receiverWallet);
-
-        // Log the transaction
+    
+        // Create transaction log before updating balances
         Transaction transaction = new Transaction();
         transaction.setSenderWallet(senderWallet);
         transaction.setReceiverWallet(receiverWallet);
         transaction.setTransactionType(TransactionType.TRANSFER);
         transaction.setAmount(amount);
         transaction.setReferenceNumber(generateReferenceNumber());
-        transaction.setStatus(TransactionStatus.COMPLETED);
-        transaction.setDescription("Transfer");
+        transaction.setStatus(TransactionStatus.PENDING); // Start as PENDING
+        transaction.setDescription("Transfer initiated");
         transaction.setCreatedAt(LocalDateTime.now());
+    
+        transaction = transactionRepository.save(transaction);
+    
+        // Log initial transaction state
+        TransactionLog initialLog = new TransactionLog();
+        initialLog.setTransaction(transaction);
+        initialLog.setStatus(TransactionStatus.PENDING);
+        initialLog.setUpdatedAt(LocalDateTime.now());
+        transactionLogRepository.save(initialLog);
+    
+        // Update balances
+        senderWallet.setBalance(senderWallet.getBalance().subtract(amount));
+        receiverWallet.setBalance(receiverWallet.getBalance().add(amount));
+    
+        walletRepository.save(senderWallet);
+        walletRepository.save(receiverWallet);
+    
+        // Update transaction status
+        transaction.setStatus(TransactionStatus.COMPLETED);
+        transaction.setDescription("Transfer completed");
         transactionRepository.save(transaction);
-
-        // Log the transaction status
-        TransactionLog log = new TransactionLog();
-        log.setTransaction(transaction);
-        log.setStatus(TransactionStatus.COMPLETED);
-        log.setUpdatedAt(LocalDateTime.now());
-        log.setTransaction(transaction);
-        transactionLogRepository.save(log);
-
+    
+        // Log completion status
+        TransactionLog completionLog = new TransactionLog();
+        completionLog.setTransaction(transaction);
+        completionLog.setStatus(TransactionStatus.COMPLETED);
+        completionLog.setUpdatedAt(LocalDateTime.now());
+        transactionLogRepository.save(completionLog);
+    
         return WalletResponse.fromWallet(senderWallet);
     }
-
+    
     @Override
     public void deleteWallet(Long id) throws NotFoundException {
-        walletRepository.findById(id).orElseThrow(() -> new NotFoundException("Wallet not found"));
-        walletRepository.deleteById(id);
+        Wallet wallet = walletRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Wallet not found"));
+    
+        // Prevent deletion if balance is not zero
+        if (wallet.getBalance().compareTo(BigDecimal.ZERO) > 0) {
+            throw new IllegalStateException("Cannot delete a wallet with a non-zero balance.");
+        }
+    
+        // Prevent deletion if there are existing transactions
+        boolean hasTransactions = transactionRepository.existsBySenderWalletIdOrReceiverWalletId(wallet.getId(), wallet.getId());
+        if (hasTransactions) {
+            throw new IllegalStateException("Cannot delete a wallet with associated transactions.");
+        }
+    
+        // Soft delete: Mark as INACTIVE instead of hard deletion
+        wallet.setStatus(WalletStatus.INACTIVE);
+        walletRepository.save(wallet);
     }
-
+    
     @Override
     public WalletResponse statusWallet(Long id, WalletStatus status) throws NotFoundException {
         Wallet wallet = walletRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Wallet not found"));
+    
+        // Prevent setting status to INACTIVE if there are active transactions
+        boolean hasActiveTransactions = transactionRepository.existsBySenderWalletIdAndStatus(wallet.getId(), TransactionStatus.PENDING);
+        if (hasActiveTransactions && status == WalletStatus.INACTIVE) {
+            throw new IllegalStateException("Cannot deactivate wallet with pending transactions.");
+        }
+    
         wallet.setStatus(status);
         walletRepository.save(wallet);
         return WalletResponse.fromWallet(wallet);
     }
+    
 
     private String generateReferenceNumber() {
         return "TXN-" + System.currentTimeMillis();

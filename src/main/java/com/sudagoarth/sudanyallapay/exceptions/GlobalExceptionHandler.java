@@ -176,4 +176,16 @@ public class GlobalExceptionHandler {
                                                 "METHOD_NOT_ALLOWED",
                                                 List.of(Map.of("message", ex.getMessage()))));
         }
+
+        @ExceptionHandler(InsufficientBalanceException.class)
+        public ResponseEntity<ApiResponse> handleInsufficientBalanceException(InsufficientBalanceException ex) {
+                LOGGER.warn("InsufficientBalanceException: {}", ex.getMessage());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                .body(ApiResponse.error(new LocaledData(
+                                                "Insufficient balance",
+                                                "رصيد غير كاف"),
+                                                HttpStatus.BAD_REQUEST.value(),
+                                                "INSUFFICIENT_BALANCE",
+                                                List.of(Map.of("message", ex.getMessage()))));
+        }
 }
