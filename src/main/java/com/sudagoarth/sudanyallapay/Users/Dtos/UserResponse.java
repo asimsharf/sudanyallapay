@@ -2,6 +2,8 @@ package com.sudagoarth.sudanyallapay.Users.Dtos;
 
 import com.sudagoarth.sudanyallapay.Users.Entities.User;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,5 +41,10 @@ public class UserResponse {
     // ✅ Convert a list of Users
     public static List<UserResponse> fromUsers(List<User> users) {
         return users.stream().map(UserResponse::new).collect(Collectors.toList());
+    }
+
+    public static @NotNull(message = "User ID is required") 
+    UserResponse fromUser(User user) {
+        return new UserResponse(user);
     }
 }

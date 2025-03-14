@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sudagoarth.sudanyallapay.Documents.Entities.Document;
-import com.sudagoarth.sudanyallapay.Documents.Entities.DocumentRequirement;
 import com.sudagoarth.sudanyallapay.Enums.DocumentStatus;
 import com.sudagoarth.sudanyallapay.Enums.EntityType;
 

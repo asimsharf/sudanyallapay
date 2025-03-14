@@ -73,7 +73,7 @@ public class DocumentService implements DocumentInterface {
         String uniqueFileName = UUID.randomUUID().toString() + "." + extension;
 
         // Save the decoded file locally (Modify for S3/cloud storage if needed)
-        String localFilePath = saveFile(decodedBytes, uniqueFileName);
+        saveFile(decodedBytes, uniqueFileName);
 
         // Construct full URL for document access
         String documentUrl = "http://localhost:4000/api/v1/documents/view/" + uniqueFileName;
