@@ -188,4 +188,16 @@ public class GlobalExceptionHandler {
                                                 "INSUFFICIENT_BALANCE",
                                                 List.of(Map.of("message", ex.getMessage()))));
         }
+
+        @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+        public ResponseEntity<ApiResponse> handleNoResourceFoundException(org.springframework.web.servlet.resource.NoResourceFoundException ex) {
+                LOGGER.warn("NoResourceFoundException: {}", ex.getMessage());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                .body(ApiResponse.error(new LocaledData(
+                                                "Resource not found",
+                                                "المورد غير موجود"),
+                                                HttpStatus.NOT_FOUND.value(),
+                                                "RESOURCE_NOT_FOUND",
+                                                List.of(Map.of("message", ex.getMessage()))));
+        }
 }
