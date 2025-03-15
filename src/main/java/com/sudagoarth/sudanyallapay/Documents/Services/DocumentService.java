@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.sudagoarth.sudanyallapay.Documents.Dtos.DocumentRequirementRequest;
@@ -36,15 +38,15 @@ public class DocumentService implements DocumentInterface {
     private DocumentRequirementRepository documentRequirementRepository;
 
     @Override
-    public List<DocumentResponse> getDocuments(EntityType entityType, Long referenceId) {
-        List<Document> documents = documentRepository.findByEntityTypeAndReferenceId(entityType, referenceId);
-        return DocumentResponse.fromDocuments(documents);
+    public Page<DocumentResponse> getDocuments(EntityType entityType, Long referenceId, Pageable pageable) {
+        Page<Document> documents = documentRepository.findByEntityTypeAndReferenceId(entityType, referenceId, pageable);
+        return  documents.map(DocumentResponse::fromDocument);
     }
 
     @Override
-    public List<DocumentRequirementResponse> getDocumentRequirements(EntityType entityType) {
-        List<DocumentRequirement> documentRequirements = documentRequirementRepository.findByEntityType(entityType);
-        return DocumentRequirementResponse.fromDocumentRequirements(documentRequirements);
+    public Page<DocumentRequirementResponse> getDocumentRequirements(EntityType entityType,Pageable pageable) {
+        Page<DocumentRequirement> documentRequirements = documentRequirementRepository.findByEntityType(entityType, pageable);
+        return documentRequirements.map(DocumentRequirementResponse::fromDocumentRequirement);
     }
 
     @Override

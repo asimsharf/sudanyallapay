@@ -1,6 +1,7 @@
 package com.sudagoarth.sudanyallapay.Documents.Interfaces;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.sudagoarth.sudanyallapay.Documents.Dtos.DocumentRequirementRequest;
 import com.sudagoarth.sudanyallapay.Documents.Dtos.DocumentRequirementResponse;
@@ -10,9 +11,9 @@ import com.sudagoarth.sudanyallapay.Enums.EntityType;
 
 public interface DocumentInterface {
 
-    List<DocumentResponse> getDocuments(EntityType entityType, Long referenceId);
+    Page<DocumentResponse> getDocuments(EntityType entityType, Long referenceId, Pageable pageable);
 
-    List<DocumentRequirementResponse> getDocumentRequirements(EntityType entityType);
+    Page<DocumentRequirementResponse> getDocumentRequirements(EntityType entityType, Pageable pageable);
 
     DocumentResponse getDocument(Long id);
 

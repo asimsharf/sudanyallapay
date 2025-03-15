@@ -3,13 +3,15 @@ package com.sudagoarth.sudanyallapay.Documents.Controllers;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -47,40 +49,49 @@ public class DocumentController {
 
         @GetMapping
         public ResponseEntity<ApiResponse> getDocuments(@Valid @RequestParam(required = true) EntityType entityType,
-                        @RequestParam(required = true) Long referenceId) {
+                        @RequestParam(required = true) Long referenceId,
+                        @RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "10") int size) {
 
                 LOGGER.info("Getting document by ID: {}", referenceId);
-
-                List<DocumentResponse> documentResponses = documentInterface
-                                .getDocuments(entityType, referenceId);
+                Pageable pageable = PageRequest.of(page, size);
+                Page<DocumentResponse> documentResponses = documentInterface
+                                .getDocuments(entityType, referenceId, pageable);
 
                 return ResponseEntity.status(HttpStatus.OK)
                                 .body(ApiResponse.success(new LocaledData(
                                                 "Document retrieved successfully", "تم استرجاع المستند بنجاح"),
                                                 HttpStatus.OK.value(),
-                                                documentResponses));
+
+                                                documentResponses.getContent(),
+                                                documentResponses.getPageable()));
 
         }
 
         @GetMapping("/requirements")
         public ResponseEntity<ApiResponse> getDocumentRequirements(
-                        @Valid @RequestParam(required = true) EntityType entityType) {
+                        @Valid @RequestParam(required = true) EntityType entityType,
+                        @RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "10") int size) {
 
                 LOGGER.info("Getting document requirements by entity type: {}", entityType);
+                Pageable pageable = PageRequest.of(page, size);
 
-                List<DocumentRequirementResponse> documentRequirementResponses = documentInterface
-                                .getDocumentRequirements(entityType);
+                Page<DocumentRequirementResponse> documentRequirementResponses = documentInterface
+                                .getDocumentRequirements(entityType, pageable);
 
                 return ResponseEntity.status(HttpStatus.OK)
                                 .body(ApiResponse.success(new LocaledData(
                                                 "Document requirements retrieved successfully",
                                                 "تم استرجاع متطلبات المستند بنجاح"),
                                                 HttpStatus.OK.value(),
-                                                documentRequirementResponses));
+
+                                                documentRequirementResponses.getContent(),
+                                                documentRequirementResponses.getPageable()));
         }
 
         @GetMapping("/document")
-        public ResponseEntity<ApiResponse> getDocument( @RequestParam Long documentId) {
+        public ResponseEntity<ApiResponse> getDocument(@RequestParam Long documentId) {
                 LOGGER.info("Getting document by ID: {}", documentId);
 
                 DocumentResponse documentResponse = documentInterface.getDocument(documentId);
@@ -126,8 +137,7 @@ public class DocumentController {
         public ResponseEntity<ApiResponse> deleteDocument(@PathVariable Long documentId) {
                 LOGGER.info("Deleting document by ID: {}", documentId);
 
-              documentInterface.deleteDocument(documentId);
-
+                documentInterface.deleteDocument(documentId);
 
                 return ResponseEntity.status(HttpStatus.CREATED)
                                 .body(ApiResponse.success(new LocaledData(
@@ -138,18 +148,17 @@ public class DocumentController {
 
         @PutMapping("/{documentId}/status")
         public ResponseEntity<ApiResponse> statusDocument(@PathVariable Long documentId, // Fix: Use @PathVariable
-                                                          @RequestBody DocumentStatusRequest documentStatusRequest) {
-            LOGGER.info("Updating document status for ID: {}", documentId);
-            
-            DocumentResponse documentResponse = documentInterface.statusDocument(documentId, documentStatusRequest);
-        
-            return ResponseEntity.status(HttpStatus.OK) // Fix: Use 200 OK instead of 201 Created
-                    .body(ApiResponse.success(new LocaledData(
-                            "Document status updated successfully", "تم تحديث حالة المستند بنجاح"),
-                            HttpStatus.OK.value(),
-                            documentResponse));
+                        @RequestBody DocumentStatusRequest documentStatusRequest) {
+                LOGGER.info("Updating document status for ID: {}", documentId);
+
+                DocumentResponse documentResponse = documentInterface.statusDocument(documentId, documentStatusRequest);
+
+                return ResponseEntity.status(HttpStatus.OK) // Fix: Use 200 OK instead of 201 Created
+                                .body(ApiResponse.success(new LocaledData(
+                                                "Document status updated successfully", "تم تحديث حالة المستند بنجاح"),
+                                                HttpStatus.OK.value(),
+                                                documentResponse));
         }
-        
 
         @GetMapping("/view/{fileName}")
         public ResponseEntity<Resource> viewDocument(@PathVariable String fileName) {

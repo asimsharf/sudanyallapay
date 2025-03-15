@@ -24,47 +24,51 @@ import com.sudagoarth.sudanyallapay.utils.LocaledData;
 @RequestMapping("/api/v1/transactions")
 public class TransactionController {
 
-    @Autowired
-    private TransactionInterface transactionInterface;
+        @Autowired
+        private TransactionInterface transactionInterface;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class.getName());
+        private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class.getName());
 
-    @GetMapping
-    public ResponseEntity<ApiResponse> getTransactions(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+        @GetMapping
+        public ResponseEntity<ApiResponse> getTransactions(
+                        @RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "10") int size) {
 
-        LOGGER.info("Getting transactions - Page: {} | Size: {}", page, size);
+                LOGGER.info("Getting transactions - Page: {} | Size: {}", page, size);
 
-        Pageable pageable = PageRequest.of(page, size);
-        Page<TransactionResponse> transactionResponses = transactionInterface.getTransactions(pageable);
+                Pageable pageable = PageRequest.of(page, size);
+                Page<TransactionResponse> transactionResponses = transactionInterface.getTransactions(pageable);
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.success(
-                        new LocaledData("Transactions retrieved successfully", "تم استرجاع المعاملات بنجاح"),
-                        HttpStatus.OK.value(),
-                        transactionResponses.getContent(),
-                        transactionResponses.getPageable()));
-    }
+                return ResponseEntity.status(HttpStatus.OK)
+                                .body(ApiResponse.success(
+                                                new LocaledData("Transactions retrieved successfully",
+                                                                "تم استرجاع المعاملات بنجاح"),
+                                                HttpStatus.OK.value(),
+                                                transactionResponses.getContent(),
+                                                transactionResponses.getPageable()));
+        }
 
-    @GetMapping("/logs")
-    public ResponseEntity<ApiResponse> getTransactionLogs(
-            @RequestParam Long transactionId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+        @GetMapping("/logs")
+        public ResponseEntity<ApiResponse> getTransactionLogs(
+                        @RequestParam Long transactionId,
+                        @RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "10") int size) {
 
-        LOGGER.info("Getting transaction logs - Transaction ID: {} | Page: {} | Size: {}", transactionId, page, size);
+                LOGGER.info("Getting transaction logs - Transaction ID: {} | Page: {} | Size: {}", transactionId, page,
+                                size);
 
-        Pageable pageable = PageRequest.of(page, size);
-        Page<TransactionLogResponse> transactionResponses = transactionInterface.getTransactionLogs(transactionId,
-                pageable);
+                Pageable pageable = PageRequest.of(page, size);
+                Page<TransactionLogResponse> transactionResponses = transactionInterface.getTransactionLogs(
+                                transactionId,
+                                pageable);
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.success(
-                        new LocaledData("Transaction logs retrieved successfully", "تم استرجاع سجلات المعاملات بنجاح"),
-                        HttpStatus.OK.value(),
-                        transactionResponses.getContent(),
-                        transactionResponses.getPageable()));
-    }
+                return ResponseEntity.status(HttpStatus.OK)
+                                .body(ApiResponse.success(
+                                                new LocaledData("Transaction logs retrieved successfully",
+                                                                "تم استرجاع سجلات المعاملات بنجاح"),
+                                                HttpStatus.OK.value(),
+                                                transactionResponses.getContent(),
+                                                transactionResponses.getPageable()));
+        }
 
 }
