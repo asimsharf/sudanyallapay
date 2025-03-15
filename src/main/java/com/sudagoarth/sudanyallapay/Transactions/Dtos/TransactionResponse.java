@@ -7,7 +7,6 @@ import com.sudagoarth.sudanyallapay.Enums.TransactionStatus;
 import com.sudagoarth.sudanyallapay.Enums.TransactionType;
 import com.sudagoarth.sudanyallapay.Transactions.Entities.Transaction;
 import com.sudagoarth.sudanyallapay.Wallets.Dtos.WalletResponse;
-import com.sudagoarth.sudanyallapay.Wallets.Entities.Wallet;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -46,10 +45,8 @@ public class TransactionResponse {
     @Enumerated(EnumType.STRING)
     private TransactionType transaction_type;
 
-    // @NotNull(message = "Receiver Wallet ID is required")
     private WalletResponse receiver;
 
-    // @NotNull(message = "Sender Wallet ID is required");
     private WalletResponse sender;
 
     public static List<TransactionResponse> fromTransactions(List<Transaction> transaction) {

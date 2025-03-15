@@ -1,7 +1,5 @@
 package com.sudagoarth.sudanyallapay.Transactions.Controllers;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sudagoarth.sudanyallapay.Transactions.Dtos.TransactionLogResponse;
 import com.sudagoarth.sudanyallapay.Transactions.Dtos.TransactionResponse;
 import com.sudagoarth.sudanyallapay.Transactions.Interfaces.TransactionInterface;
 import com.sudagoarth.sudanyallapay.Users.Controllers.UserController;
@@ -43,6 +42,26 @@ public class TransactionController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success(
                         new LocaledData("Transactions retrieved successfully", "تم استرجاع المعاملات بنجاح"),
+                        HttpStatus.OK.value(),
+                        transactionResponses.getContent(),
+                        transactionResponses.getPageable()));
+    }
+
+    @GetMapping("/logs")
+    public ResponseEntity<ApiResponse> getTransactionLogs(
+            @RequestParam Long transactionId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        LOGGER.info("Getting transaction logs - Transaction ID: {} | Page: {} | Size: {}", transactionId, page, size);
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<TransactionLogResponse> transactionResponses = transactionInterface.getTransactionLogs(transactionId,
+                pageable);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(
+                        new LocaledData("Transaction logs retrieved successfully", "تم استرجاع سجلات المعاملات بنجاح"),
                         HttpStatus.OK.value(),
                         transactionResponses.getContent(),
                         transactionResponses.getPageable()));
