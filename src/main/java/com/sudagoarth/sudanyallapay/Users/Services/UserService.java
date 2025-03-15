@@ -1,5 +1,8 @@
 package com.sudagoarth.sudanyallapay.Users.Services;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.sudagoarth.sudanyallapay.Users.Repositories.AuthSecurityRepository;
@@ -19,7 +22,6 @@ import com.sudagoarth.sudanyallapay.exceptions.NotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
@@ -97,9 +99,9 @@ public class UserService implements UserInterface {
     }
 
     @Override
-    public List<UserResponse> getAllUsers() {
-        List<User> users = userRepository.findAll();
-        return UserResponse.fromUsers(users);
+    public Page<UserResponse> getAllUsers(Pageable pageable) {
+        Page<User> users = userRepository.getAllUsers(pageable);
+        return  users.map(UserResponse::new);
     }
 
     private static final int OTP_VALIDITY_MINUTES = 10;

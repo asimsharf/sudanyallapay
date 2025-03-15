@@ -1,11 +1,12 @@
 package com.sudagoarth.sudanyallapay.Wallets.Controllers;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,6 +26,10 @@ import com.sudagoarth.sudanyallapay.Wallets.Interfaces.WalletInterface;
 import com.sudagoarth.sudanyallapay.utils.ApiResponse;
 import com.sudagoarth.sudanyallapay.utils.LocaledData;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
+
 @RestController
 @RequestMapping("/api/v1/wallets")
 public class WalletController {
@@ -35,17 +40,19 @@ public class WalletController {
         private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class.getName());
 
         @GetMapping
-        public ResponseEntity<ApiResponse> getWallets() {
+        public ResponseEntity<ApiResponse> getWallets(@RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "10") int size) {
 
                 LOGGER.info("Getting wallets");
+                Pageable pageable = PageRequest.of(page, size);
 
-                List<WalletResponse> walletResponses = walletInterface.getWallets();
+                Page<WalletResponse> walletResponses = walletInterface.getWallets(pageable);
 
                 return ResponseEntity.status(HttpStatus.OK)
                                 .body(ApiResponse.success(new LocaledData(
                                                 "Wallet retrieved successfully", "تم استرجاع المحفظة بنجاح"),
                                                 HttpStatus.OK.value(),
-                                                walletResponses));
+                                                walletResponses.getContent(), walletResponses.getPageable()));
 
         }
 
@@ -107,11 +114,13 @@ public class WalletController {
         }
 
         @PostMapping("/transfer")
-        public ResponseEntity<ApiResponse> transfer(@RequestParam Long senderWalletId, @RequestParam Long receiverWalletId,
+        public ResponseEntity<ApiResponse> transfer(@RequestParam Long senderWalletId,
+                        @RequestParam Long receiverWalletId,
                         @RequestParam BigDecimal amount) {
                 LOGGER.info("Transferring from wallet");
 
-                WalletResponse walletResponse = walletInterface.transferWallet(senderWalletId, receiverWalletId, amount);
+                WalletResponse walletResponse = walletInterface.transferWallet(senderWalletId, receiverWalletId,
+                                amount);
 
                 return ResponseEntity.status(HttpStatus.OK)
                                 .body(ApiResponse.success(new LocaledData(
@@ -135,7 +144,8 @@ public class WalletController {
         }
 
         @PutMapping("/status")
-        public ResponseEntity<ApiResponse> updateWalletStatus(@RequestParam Long walletId, @RequestParam WalletStatus status) {
+        public ResponseEntity<ApiResponse> updateWalletStatus(@RequestParam Long walletId,
+                        @RequestParam WalletStatus status) {
                 LOGGER.info("Updating wallet status by ID: {}", walletId);
 
                 WalletResponse walletResponse = walletInterface.statusWallet(walletId, status);

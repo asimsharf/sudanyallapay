@@ -3,6 +3,9 @@ package com.sudagoarth.sudanyallapay.Users.Controllers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -66,13 +69,18 @@ public class UserController {
         }
 
         @GetMapping("/users")
-        public ResponseEntity<ApiResponse> getAllUsers() {
+        public ResponseEntity<ApiResponse> getAllUsers(@RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "10") int size) {
                 LOGGER.info("Getting all users");
+
+                Pageable pageable = PageRequest.of(page, size);
+                Page<UserResponse> userResponses = userInterface.getAllUsers(pageable);
                 return ResponseEntity.status(HttpStatus.OK)
                                 .body(ApiResponse.success(
                                                 new LocaledData("Users retrieved successfully",
                                                                 "تم استرجاع المستخدمين بنجاح"),
-                                                HttpStatus.OK.value(), userInterface.getAllUsers()));
+                                                HttpStatus.OK.value(), userResponses.getContent(),
+                                                userResponses.getPageable()));
         }
 
         // updateUser

@@ -2,9 +2,9 @@ package com.sudagoarth.sudanyallapay.Wallets.Services;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +25,8 @@ import com.sudagoarth.sudanyallapay.Wallets.Repositories.WalletRepository;
 import com.sudagoarth.sudanyallapay.exceptions.DuplicateException;
 import com.sudagoarth.sudanyallapay.exceptions.InsufficientBalanceException;
 import com.sudagoarth.sudanyallapay.exceptions.NotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class WalletService implements WalletInterface {
@@ -42,9 +44,9 @@ public class WalletService implements WalletInterface {
     private TransactionLogRepository transactionLogRepository;
 
     @Override
-    public List<WalletResponse> getWallets() {
-        List<Wallet> wallets = walletRepository.findAll();
-        return WalletResponse.fromWallets(wallets);
+    public Page<WalletResponse> getWallets(Pageable pageable) {
+        Page<Wallet> wallets = walletRepository.getWallets(pageable);
+        return wallets.map(WalletResponse::fromWallet);
     }
 
     @Override
@@ -145,21 +147,21 @@ public class WalletService implements WalletInterface {
     @Override
     @Transactional
     public WalletResponse transferWallet(Long senderId, Long receiverId, BigDecimal amount) throws NotFoundException {
-        
+
         if (senderId.equals(receiverId)) {
             throw new IllegalArgumentException("Sender and Receiver cannot be the same.");
         }
-    
+
         Wallet senderWallet = walletRepository.findById(senderId)
                 .orElseThrow(() -> new NotFoundException("Sender Wallet not found"));
-    
+
         Wallet receiverWallet = walletRepository.findById(receiverId)
                 .orElseThrow(() -> new NotFoundException("Receiver Wallet not found"));
-    
+
         if (senderWallet.getBalance().compareTo(amount) < 0) {
             throw new InsufficientBalanceException("Insufficient balance to complete the transfer.");
         }
-    
+
         // Create transaction log before updating balances
         Transaction transaction = new Transaction();
         transaction.setSenderWallet(senderWallet);
@@ -170,75 +172,76 @@ public class WalletService implements WalletInterface {
         transaction.setStatus(TransactionStatus.PENDING); // Start as PENDING
         transaction.setDescription("Transfer initiated");
         transaction.setCreatedAt(LocalDateTime.now());
-    
+
         transaction = transactionRepository.save(transaction);
-    
+
         // Log initial transaction state
         TransactionLog initialLog = new TransactionLog();
         initialLog.setTransaction(transaction);
         initialLog.setStatus(TransactionStatus.PENDING);
         initialLog.setUpdatedAt(LocalDateTime.now());
         transactionLogRepository.save(initialLog);
-    
+
         // Update balances
         senderWallet.setBalance(senderWallet.getBalance().subtract(amount));
         receiverWallet.setBalance(receiverWallet.getBalance().add(amount));
-    
+
         walletRepository.save(senderWallet);
         walletRepository.save(receiverWallet);
-    
+
         // Update transaction status
         transaction.setStatus(TransactionStatus.COMPLETED);
         transaction.setDescription("Transfer completed");
         transactionRepository.save(transaction);
-    
+
         // Log completion status
         TransactionLog completionLog = new TransactionLog();
         completionLog.setTransaction(transaction);
         completionLog.setStatus(TransactionStatus.COMPLETED);
         completionLog.setUpdatedAt(LocalDateTime.now());
         transactionLogRepository.save(completionLog);
-    
+
         return WalletResponse.fromWallet(senderWallet);
     }
-    
+
     @Override
     public void deleteWallet(Long id) throws NotFoundException {
         Wallet wallet = walletRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Wallet not found"));
-    
+
         // Prevent deletion if balance is not zero
         if (wallet.getBalance().compareTo(BigDecimal.ZERO) > 0) {
             throw new IllegalStateException("Cannot delete a wallet with a non-zero balance.");
         }
-    
+
         // Prevent deletion if there are existing transactions
-        boolean hasTransactions = transactionRepository.existsBySenderWalletIdOrReceiverWalletId(wallet.getId(), wallet.getId());
+        boolean hasTransactions = transactionRepository.existsBySenderWalletIdOrReceiverWalletId(wallet.getId(),
+                wallet.getId());
         if (hasTransactions) {
             throw new IllegalStateException("Cannot delete a wallet with associated transactions.");
         }
-    
+
         // Soft delete: Mark as INACTIVE instead of hard deletion
         wallet.setStatus(WalletStatus.INACTIVE);
         walletRepository.save(wallet);
     }
-    
+
     @Override
     public WalletResponse statusWallet(Long id, WalletStatus status) throws NotFoundException {
         Wallet wallet = walletRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Wallet not found"));
-    
+
         // Prevent setting status to INACTIVE if there are active transactions
-        boolean hasActiveTransactions = transactionRepository.existsBySenderWalletIdAndStatus(wallet.getId(), TransactionStatus.PENDING);
+        boolean hasActiveTransactions = transactionRepository.existsBySenderWalletIdAndStatus(wallet.getId(),
+                TransactionStatus.PENDING);
         if (hasActiveTransactions && status == WalletStatus.INACTIVE) {
             throw new IllegalStateException("Cannot deactivate wallet with pending transactions.");
         }
-    
+
         wallet.setStatus(status);
         walletRepository.save(wallet);
         return WalletResponse.fromWallet(wallet);
     }
-    
 
     private String generateReferenceNumber() {
         return "TXN-" + System.currentTimeMillis();

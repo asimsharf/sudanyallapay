@@ -1,6 +1,7 @@
 package com.sudagoarth.sudanyallapay.Users.Interfaces;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.sudagoarth.sudanyallapay.Users.Dtos.AuthSecurityRequest;
 import com.sudagoarth.sudanyallapay.Users.Dtos.EmailRequest;
@@ -17,7 +18,7 @@ public interface UserInterface {
 
     void deleteUser(Long id);
 
-    List<UserResponse> getAllUsers();
+    Page<UserResponse> getAllUsers(Pageable pageable);
 
     UserResponse loginUser(LoginRequest loginRequest);
 

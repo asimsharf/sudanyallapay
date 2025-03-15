@@ -1,14 +1,15 @@
 package com.sudagoarth.sudanyallapay.Wallets.Interfaces;
 
 import java.math.BigDecimal;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.sudagoarth.sudanyallapay.Enums.WalletStatus;
 import com.sudagoarth.sudanyallapay.Wallets.Dtos.WalletRequest;
 import com.sudagoarth.sudanyallapay.Wallets.Dtos.WalletResponse;
 
 public interface WalletInterface {
-    List<WalletResponse> getWallets();
+    Page<WalletResponse> getWallets(Pageable pageable);
 
     WalletResponse getWallet(Long walletId);
 
