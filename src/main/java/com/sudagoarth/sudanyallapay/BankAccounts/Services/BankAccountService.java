@@ -1,5 +1,10 @@
 package com.sudagoarth.sudanyallapay.BankAccounts.Services;
 
-public class BankAccountService {
+import org.springframework.stereotype.Service;
+
+import com.sudagoarth.sudanyallapay.Bills.Interfaces.BillInterface;
+
+@Service
+public class BankAccountService implements BillInterface {
     
 }

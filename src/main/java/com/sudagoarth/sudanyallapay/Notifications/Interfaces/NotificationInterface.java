@@ -1,5 +1,6 @@
 package com.sudagoarth.sudanyallapay.Notifications.Interfaces;
 
-public class NotificationInterface {
+public interface NotificationInterface {
+
     
 }
