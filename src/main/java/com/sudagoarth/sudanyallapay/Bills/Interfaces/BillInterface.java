@@ -8,11 +8,14 @@ import com.sudagoarth.sudanyallapay.Bills.Dtos.BillResponse;
 import com.sudagoarth.sudanyallapay.Bills.Dtos.BillStatusRequest;
 
 public interface BillInterface {
-    Page<BillResponse> getBills(Long referenceId, Pageable pageable);
-    BillResponse getBill(Long id);
+    Page<BillResponse> getBills(Long userId, Pageable pageable);
+    BillResponse getBill(Long billId);
     BillResponse createBill(BillRequest billRequest);
-    BillResponse updateBill(Long id, BillRequest billRequest);
-    void deleteBill(Long id);
-    BillResponse statusBill(Long id, BillStatusRequest billStatusRequest);
+    BillResponse updateBill(Long billId, BillRequest billRequest);
+    BillResponse updateBillStatus(Long billId, BillStatusRequest billStatusRequest);
+    void deleteBill(Long billId);
+    BillResponse statusBill(Long billId, BillStatusRequest billStatusRequest);
+    BillResponse payBill(Long billId);
+    BillResponse cancelBill(Long billId);
 
 }

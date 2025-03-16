@@ -18,7 +18,7 @@ public class BankAccountService implements BankAccountInterface {
     }
 
     @Override
-    public BankAccountResponse getBankAccount(Long id) {
+    public BankAccountResponse getBankAccount(Long bankAccountId) {
         throw new UnsupportedOperationException("Unimplemented method 'getBankAccount'");
     }
 
@@ -28,17 +28,17 @@ public class BankAccountService implements BankAccountInterface {
     }
 
     @Override
-    public BankAccountResponse updateBankAccount(Long id, BankAccountRequest bankAccountRequest) {
+    public BankAccountResponse updateBankAccount(Long bankAccountId, BankAccountRequest bankAccountRequest) {
         throw new UnsupportedOperationException("Unimplemented method 'updateBankAccount'");
     }
 
     @Override
-    public void deleteBankAccount(Long id) {
+    public void deleteBankAccount(Long bankAccountId) {
         throw new UnsupportedOperationException("Unimplemented method 'deleteBankAccount'");
     }
 
     @Override
-    public BankAccountResponse statusBankAccount(Long id, BankAccountStatusRequest bankAccountStatusRequest) {
+    public BankAccountResponse statusBankAccount(Long bankAccountId, BankAccountStatusRequest bankAccountStatusRequest) {
         throw new UnsupportedOperationException("Unimplemented method 'statusBankAccount'");
     }
     

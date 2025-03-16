@@ -24,4 +24,9 @@ public class NotificationRequest {
     @Enumerated(EnumType.STRING)
     private Boolean isRead;
 
+    public Object getTitle() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getTitle'");
+    }
+
 }

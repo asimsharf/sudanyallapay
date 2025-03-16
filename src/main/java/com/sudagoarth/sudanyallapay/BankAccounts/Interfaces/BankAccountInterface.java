@@ -10,13 +10,13 @@ import com.sudagoarth.sudanyallapay.BankAccounts.Dtos.BankAccountStatusRequest;
 public interface BankAccountInterface {
     Page<BankAccountResponse> getBankAccounts(Long userId, Pageable pageable);
 
-    BankAccountResponse getBankAccount(Long id);
+    BankAccountResponse getBankAccount(Long bankAccountId);
 
     BankAccountResponse createBankAccount(BankAccountRequest bankAccountRequest);
 
-    BankAccountResponse updateBankAccount(Long id, BankAccountRequest bankAccountRequest);
+    BankAccountResponse updateBankAccount(Long bankAccountId, BankAccountRequest bankAccountRequest);
 
-    void deleteBankAccount(Long id);
+    void deleteBankAccount(Long bankAccountId);
 
-    BankAccountResponse statusBankAccount(Long id, BankAccountStatusRequest bankAccountStatusRequest);
+    BankAccountResponse statusBankAccount(Long bankAccountId, BankAccountStatusRequest bankAccountStatusRequest);
 }

@@ -13,12 +13,12 @@ import com.sudagoarth.sudanyallapay.Bills.Interfaces.BillInterface;
 public class BillService implements BillInterface {
 
     @Override
-    public Page<BillResponse> getBills(Long referenceId, Pageable pageable) {
+    public Page<BillResponse> getBills(Long userId, Pageable pageable) {
         throw new UnsupportedOperationException("Unimplemented method 'getBills'");
     }
 
     @Override
-    public BillResponse getBill(Long id) {
+    public BillResponse getBill(Long billId) {
         throw new UnsupportedOperationException("Unimplemented method 'getBill'");
     }
 
@@ -28,18 +28,33 @@ public class BillService implements BillInterface {
     }
 
     @Override
-    public BillResponse updateBill(Long id, BillRequest billRequest) {
+    public BillResponse updateBill(Long billId, BillRequest billRequest) {
         throw new UnsupportedOperationException("Unimplemented method 'updateBill'");
     }
 
     @Override
-    public void deleteBill(Long id) {
+    public void deleteBill(Long billId) {
         throw new UnsupportedOperationException("Unimplemented method 'deleteBill'");
     }
 
     @Override
-    public BillResponse statusBill(Long id, BillStatusRequest billStatusRequest) {
+    public BillResponse statusBill(Long billId, BillStatusRequest billStatusRequest) {
         throw new UnsupportedOperationException("Unimplemented method 'statusBill'");
+    }
+
+    @Override
+    public BillResponse updateBillStatus(Long billId, BillStatusRequest billStatusRequest) {
+        throw new UnsupportedOperationException("Unimplemented method 'updateBillStatus'");
+    }
+
+    @Override
+    public BillResponse payBill(Long billId) {
+        throw new UnsupportedOperationException("Unimplemented method 'payBill'");
+    }
+
+    @Override
+    public BillResponse cancelBill(Long billId) {
+        throw new UnsupportedOperationException("Unimplemented method 'cancelBill'");
     }
     
 }
