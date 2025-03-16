@@ -153,3 +153,7 @@
 
 🚀 **Now you can start designing Sudan Yalla Pay’s UI/UX!** Let me know if you need further details or improvements. 🎯
 
+
+***Screen Capture PDF***
+
+![Image Description](screencapture.pdf)
