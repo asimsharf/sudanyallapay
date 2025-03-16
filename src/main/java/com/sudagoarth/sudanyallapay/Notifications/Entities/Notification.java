@@ -1,4 +1,4 @@
-package com.sudagoarth.sudanyallapay.Security.Notifications.Entities;
+package com.sudagoarth.sudanyallapay.Notifications.Entities;
 
 import jakarta.persistence.*;
 import lombok.*;
