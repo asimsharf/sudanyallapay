@@ -1,5 +1,17 @@
 # **Sudan Yalla Pay - UI/UX Wireframe & Design Guide**
 
+***How to build and run***
+
+```bash
+mvn clean install
+mvn spring-boot:run
+```
+
+***Swagger Path***
+
+[[Swagger](http://localhost:4000/swagger-ui/index.html)]
+
+
 ## **📌 1. Textual Breakdown (Screen-by-Screen Explanation)**  
 
 ### **1️⃣ Login & Registration Screen**  
