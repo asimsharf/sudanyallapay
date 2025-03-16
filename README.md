@@ -156,4 +156,4 @@
 
 ***Screen Capture PDF***
 
-![Image Description](screencapture.pdf)
+![Image Description](screencapture.png)
