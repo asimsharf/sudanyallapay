@@ -24,6 +24,7 @@ import com.sudagoarth.sudanyallapay.Documents.Repositories.DocumentRepository;
 import com.sudagoarth.sudanyallapay.Documents.Repositories.DocumentRequirementRepository;
 import com.sudagoarth.sudanyallapay.Enums.DocumentStatus;
 import com.sudagoarth.sudanyallapay.Enums.EntityType;
+import com.sudagoarth.sudanyallapay.Users.Repositories.UserRepository;
 import com.sudagoarth.sudanyallapay.exceptions.DuplicateException;
 import com.sudagoarth.sudanyallapay.exceptions.NotFoundException;
 
@@ -36,15 +37,19 @@ public class DocumentService implements DocumentInterface {
     @Autowired
     private DocumentRequirementRepository documentRequirementRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Override
     public Page<DocumentResponse> getDocuments(EntityType entityType, Long referenceId, Pageable pageable) {
         Page<Document> documents = documentRepository.findByEntityTypeAndReferenceId(entityType, referenceId, pageable);
-        return  documents.map(DocumentResponse::fromDocument);
+        return documents.map(DocumentResponse::fromDocument);
     }
 
     @Override
-    public Page<DocumentRequirementResponse> getDocumentRequirements(EntityType entityType,Pageable pageable) {
-        Page<DocumentRequirement> documentRequirements = documentRequirementRepository.findByEntityType(entityType, pageable);
+    public Page<DocumentRequirementResponse> getDocumentRequirements(EntityType entityType, Pageable pageable) {
+        Page<DocumentRequirement> documentRequirements = documentRequirementRepository.findByEntityType(entityType,
+                pageable);
         return documentRequirements.map(DocumentRequirementResponse::fromDocumentRequirement);
     }
 
@@ -61,6 +66,9 @@ public class DocumentService implements DocumentInterface {
         if (request.getBase64Document() == null || request.getBase64Document().isEmpty()) {
             throw new IllegalArgumentException("Document content is required");
         }
+
+        // Validate that the referenced entity exists
+        validateReferenceEntity(request.getEntityType(), request.getReferenceId());
 
         // Extract file extension (png, jpg, pdf, etc.)
         String base64Data = request.getBase64Document();
@@ -81,7 +89,9 @@ public class DocumentService implements DocumentInterface {
 
         // Save document metadata in the database
         Document document = new Document();
+
         document.setReferenceId(request.getReferenceId());
+
         document.setEntityType(request.getEntityType());
         document.setDocumentName(request.getDocumentName());
         document.setDocumentUrl(documentUrl); // Store full access URL
@@ -91,6 +101,18 @@ public class DocumentService implements DocumentInterface {
         documentRepository.save(document);
 
         return DocumentResponse.fromDocument(document);
+    }
+
+    private void validateReferenceEntity(EntityType entityType, Long referenceId) {
+        switch (entityType) {
+            case USER:
+                if (!userRepository.existsById(referenceId)) {
+                    throw new NotFoundException("User with ID " + referenceId + " not found.");
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported entity type: " + entityType);
+        }
     }
 
     // Helper method to save a file locally

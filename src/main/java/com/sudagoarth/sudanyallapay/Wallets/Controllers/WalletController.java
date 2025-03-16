@@ -26,6 +26,8 @@ import com.sudagoarth.sudanyallapay.Wallets.Interfaces.WalletInterface;
 import com.sudagoarth.sudanyallapay.utils.ApiResponse;
 import com.sudagoarth.sudanyallapay.utils.LocaledData;
 
+import jakarta.validation.Valid;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
@@ -72,7 +74,7 @@ public class WalletController {
         }
 
         @PostMapping
-        public ResponseEntity<ApiResponse> createWallet(@RequestBody WalletRequest walletRequest) {
+        public ResponseEntity<ApiResponse> createWallet(@Valid @RequestBody WalletRequest walletRequest) {
                 LOGGER.info("Creating wallet");
 
                 WalletResponse walletResponse = walletInterface.createWallet(walletRequest);

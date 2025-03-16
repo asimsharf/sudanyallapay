@@ -2,6 +2,7 @@ package com.sudagoarth.sudanyallapay.exceptions;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
@@ -199,5 +200,17 @@ public class GlobalExceptionHandler {
                                                 HttpStatus.NOT_FOUND.value(),
                                                 "RESOURCE_NOT_FOUND",
                                                 List.of(Map.of("message", ex.getMessage()))));
+        }
+
+        @ExceptionHandler(DataIntegrityViolationException.class)
+        public ResponseEntity<ApiResponse> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
+                LOGGER.error("DataIntegrityViolationException: ", ex);
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                                .body(ApiResponse.error(new LocaledData(
+                                                "A record with the same unique value already exists. Please use a different value.",
+                                                "يوجد سجل بنفس القيمة الفريدة مسبقًا. يرجى استخدام قيمة مختلفة."),
+                                                HttpStatus.CONFLICT.value(),
+                                                "DATA_INTEGRITY_VIOLATION",
+                                               null));
         }
 }

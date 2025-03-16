@@ -6,6 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.sudagoarth.sudanyallapay.Users.Repositories.AuthSecurityRepository;
+import com.sudagoarth.sudanyallapay.Documents.Entities.Document;
+import com.sudagoarth.sudanyallapay.Documents.Repositories.DocumentRepository;
 import com.sudagoarth.sudanyallapay.Users.Dtos.AuthSecurityRequest;
 import com.sudagoarth.sudanyallapay.Users.Dtos.EmailRequest;
 import com.sudagoarth.sudanyallapay.Users.Dtos.LoginRequest;
@@ -22,6 +24,7 @@ import com.sudagoarth.sudanyallapay.exceptions.NotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
@@ -33,6 +36,9 @@ public class UserService implements UserInterface {
 
     @Autowired
     private AuthSecurityRepository authSecurityRepository;
+
+    @Autowired
+    private DocumentRepository documentRepository;
 
     @Override
     public UserResponse createUser(UserRequest userRequest) throws DuplicateException {
@@ -101,7 +107,13 @@ public class UserService implements UserInterface {
     @Override
     public Page<UserResponse> getAllUsers(Pageable pageable) {
         Page<User> users = userRepository.getAllUsers(pageable);
-        return  users.map(UserResponse::new);
+
+        
+
+        return users.map(user -> {
+            List<Document> userDocuments = documentRepository.findDocumentsByUserId(user.getId());
+            return new UserResponse(user, userDocuments);
+        });
     }
 
     private static final int OTP_VALIDITY_MINUTES = 10;

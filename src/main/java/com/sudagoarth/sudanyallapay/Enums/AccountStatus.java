@@ -1,5 +1,5 @@
 package com.sudagoarth.sudanyallapay.Enums;
 
 public enum AccountStatus {
-    ACTIVE, INACTIVE
+    ACTIVE, INACTIVE,PENDING, BLOCKED, SUSPENDED
 }

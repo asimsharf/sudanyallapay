@@ -24,6 +24,7 @@ public class User {
     private String password;
     private String nationalId;
     private LocalDate dateOfBirth;
+    
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

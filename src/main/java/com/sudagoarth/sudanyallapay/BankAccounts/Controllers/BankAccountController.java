@@ -24,6 +24,9 @@ import com.sudagoarth.sudanyallapay.Users.Controllers.UserController;
 import com.sudagoarth.sudanyallapay.utils.ApiResponse;
 import com.sudagoarth.sudanyallapay.utils.LocaledData;
 
+import org.springframework.web.bind.annotation.RequestBody;
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/v1/bank-accounts")
 public class BankAccountController {
@@ -51,7 +54,7 @@ public class BankAccountController {
         }
 
         @GetMapping("/bank-account")
-        public ResponseEntity<ApiResponse> getBankAccount(@RequestParam Long bankAccountId) {
+        public ResponseEntity<ApiResponse> getBankAccount(@Valid @RequestParam Long bankAccountId) {
                 LOGGER.info("Getting bank account by ID: {}", bankAccountId);
                 BankAccountResponse bankAccountResponse = bankAccountInterface.getBankAccount(bankAccountId);
                 return ResponseEntity.status(HttpStatus.OK)
@@ -63,7 +66,7 @@ public class BankAccountController {
         }
 
         @PostMapping
-        public ResponseEntity<ApiResponse> createBankAccount(@RequestParam BankAccountRequest bankAccountRequest) {
+        public ResponseEntity<ApiResponse> createBankAccount(@Valid @RequestBody BankAccountRequest bankAccountRequest) {
                 LOGGER.info("Creating bank account for user ID: {}", bankAccountRequest.getUserId());
                 BankAccountResponse bankAccountResponse = bankAccountInterface.createBankAccount(bankAccountRequest);
                 return ResponseEntity.status(HttpStatus.CREATED)
@@ -75,8 +78,8 @@ public class BankAccountController {
         }
 
         @PutMapping
-        public ResponseEntity<ApiResponse> updateBankAccount(@RequestParam Long bankAccountId,
-                        @RequestParam BankAccountRequest bankAccountRequest) {
+        public ResponseEntity<ApiResponse> updateBankAccount(@Valid @RequestParam Long bankAccountId,
+        @RequestBody BankAccountRequest  bankAccountRequest) {
                 LOGGER.info("Updating bank account by ID: {}", bankAccountId);
                 BankAccountResponse bankAccountResponse = bankAccountInterface.updateBankAccount(bankAccountId,
                                 bankAccountRequest);

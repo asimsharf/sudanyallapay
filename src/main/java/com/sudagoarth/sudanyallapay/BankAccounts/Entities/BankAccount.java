@@ -6,6 +6,7 @@ import com.sudagoarth.sudanyallapay.Users.Entities.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+@Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,10 +24,16 @@ public class BankAccount {
     private User user;
     
     private String bankName;
+
+    @Column(unique = true, nullable = false)
     private String accountNumber;
+
+    @Column(unique = true, nullable = false)
     private String iban;
     private String swiftCode;
     
     @Enumerated(EnumType.STRING)
     private AccountStatus status;
+
+
 }
