@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.sudagoarth.sudanyallapay.BankAccounts.Entities.BankAccount;
-import com.sudagoarth.sudanyallapay.Users.Entities.User;
 
 @Repository
 public interface BankAccountRepository extends JpaRepository<BankAccount, Long> {
