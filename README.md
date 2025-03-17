@@ -4,17 +4,6 @@
 ### Directory Tree
 ```
 .
-├── HELP.md
-├── README.md
-├── SUDAN-YALLA-PAY.postman_collection.json
-├── UPDATED.MD
-├── me.md
-├── mvnw
-├── mvnw.cmd
-├── pom.xml
-├── screencapture.png
-├── script-db-sudanyallapay.sql
-├── script-sudanyallapay.sql
 ├── src
 │   ├── main
 │   │   ├── java
