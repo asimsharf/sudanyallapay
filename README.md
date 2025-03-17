@@ -148,6 +148,101 @@ Manages business accounts and their associated financial transactions.
 
 🚀 **This document serves as a high-level breakdown of the Sudan Yalla Pay system architecture and user journey.**
 
+
+# **What is NOT Covered in Sudan Yalla Pay Layered (N-Tier) Architecture [BankAccounts] from SOLID Principles?**  
+The Sudan Yalla Pay project follows **most** of the SOLID principles, but there are some **gaps and potential improvements** to fully adhere to these principles.
+
+---
+
+## **1. Single Responsibility Principle (SRP) - ✅ Mostly Covered**  
+The project generally follows **SRP** by separating concerns into **Controller, Service, and Repository layers**.  
+
+### **🔴 Issue**:  
+- **Logging and Business Logic in Controllers:**  
+  - The `BankAccountController` logs information but also performs request validation and response formatting.
+  - This means the controller has **two responsibilities**: handling HTTP requests **and** logging.
+
+### **🚀 Improvement:**  
+- Create a separate **Logging Service** to handle logging.  
+- Ensure **validation** is handled separately using **Spring Boot validation annotations** (`@Valid`, `@Validated`) or **exception handlers**.
+
+---
+
+## **2. Open/Closed Principle (OCP) - ⚠️ Partially Covered**  
+The implementation allows extensions without modifying existing classes in most cases. However, the **status update method** and **delete operation** are unimplemented.
+
+### **🔴 Issue**:  
+- The `deleteBankAccount()` and `statusBankAccount()` methods **throw `UnsupportedOperationException`**.
+- If in the future these methods need to be implemented, **existing code will have to be modified instead of extending functionality**.
+
+### **🚀 Improvement:**  
+- Implement `deleteBankAccount()` using a **soft delete approach** (adding a `status=INACTIVE` instead of removing from DB).
+- If `statusBankAccount()` will have multiple implementations, consider using **Strategy Pattern** to define different status update strategies.
+
+---
+
+## **3. Liskov Substitution Principle (LSP) - ✅ Well Covered**  
+The Sudan Yalla Pay project follows **LSP** because `BankAccountService` **implements** `BankAccountInterface`, making it substitutable.  
+
+### **🔴 Issue**:  
+- The `BankAccountService` implementation **throws exceptions instead of handling edge cases properly**.
+- For example, `getBankAccount()` **throws a `NotFoundException`**, but **doesn't provide alternative behavior**.
+
+### **🚀 Improvement:**  
+- Return **optional responses** instead of throwing exceptions in some cases.  
+- If a bank account does not exist, return an **empty response with status `204 No Content` instead of `404 Not Found`**.
+
+---
+
+## **4. Interface Segregation Principle (ISP) - ⚠️ Partially Covered**  
+The `BankAccountInterface` contains **all** operations for managing bank accounts.
+
+### **🔴 Issue**:  
+- The interface **forces all implementations to include every method** (`createBankAccount`, `updateBankAccount`, `deleteBankAccount`, `statusBankAccount`), even if they don’t need them.
+- Some methods **aren't even implemented** (e.g., `deleteBankAccount()`).
+
+### **🚀 Improvement:**  
+- Split `BankAccountInterface` into **smaller, more specific interfaces**:
+  - `BankAccountReadInterface` → `getBankAccounts()`, `getBankAccount()`
+  - `BankAccountWriteInterface` → `createBankAccount()`, `updateBankAccount()`
+  - `BankAccountStatusInterface` → `statusBankAccount()`
+  - `BankAccountDeleteInterface` → `deleteBankAccount()`
+  
+This allows implementations to **only use the methods they need**, reducing unnecessary dependencies.
+
+---
+
+## **5. Dependency Inversion Principle (DIP) - ✅ Mostly Covered**  
+The Sudan Yalla Pay project correctly **injects dependencies using interfaces** rather than concrete classes, which follows DIP.
+
+### **🔴 Issue**:  
+- `BankAccountService` **depends on `UserRepository` directly**, which is a lower-level module.  
+- Ideally, the service layer should not **directly access repositories**, but instead work with an **abstraction** (like a `UserServiceInterface`).
+
+### **🚀 Improvement:**  
+- Create a **UserServiceInterface** and implement it in `UserService`.  
+- Inject **UserServiceInterface** into `BankAccountService` instead of `UserRepository`.  
+
+This ensures **loose coupling** and makes future changes **easier without modifying multiple layers**.
+
+---
+
+## **🚀 Summary of What’s Missing in Sudan Yalla Pay**  
+| **SOLID Principle**  | **Coverage** | **Gaps** | **Suggested Fix** |
+|----------------------|-------------|----------|--------------------|
+| **SRP (Single Responsibility)** | ✅ **Mostly Covered** | Controller handles both logging & request validation. | Create a **LoggingService** and move logging logic. |
+| **OCP (Open/Closed)** | ⚠️ **Partially Covered** | Unimplemented methods (`deleteBankAccount`, `statusBankAccount`). | Implement them or use **Strategy Pattern** for status updates. |
+| **LSP (Liskov Substitution)** | ✅ **Well Covered** | Throws `NotFoundException` instead of handling missing data. | Return **empty responses (204 No Content)** for missing records. |
+| **ISP (Interface Segregation)** | ⚠️ **Partially Covered** | `BankAccountInterface` forces all implementations to implement all methods. | Split into **smaller, more specific interfaces**. |
+| **DIP (Dependency Inversion)** | ✅ **Mostly Covered** | `BankAccountService` depends on `UserRepository` directly. | Introduce **`UserServiceInterface`** and inject it instead. |
+
+---
+
+## **Final Verdict:**  
+The Sudan Yalla Pay project **follows SOLID principles well but has minor gaps**. Applying the suggested **refinements** will **improve maintainability, flexibility, and scalability** of the system.
+
+Would you like help **refactoring some of these areas**? 🚀😊
+
 ***Screen Capture PDF***
 
 ![Image Description](screencapture.png)
